@@ -2,53 +2,113 @@
 
 #include <Arduino.h>
 
-class SamdTc {
+
+// I could not get this to work as a template class with TC3, TC4, or TC5 as
+// the template parameter. TC3 etc. are #defines like this:
+//     #define TC3 ((Tc*)0x42002C00UL)
+// I could not get past failures to reinterpret_cast from integer to pointer.
+
+
+class SamdTc3 {
 
     public:
 
-        SamdTc(Tc *tc) : _tc(tc)
-        {
-            if (tc == TC3)
-                _tc_num = 3;
-            else if (tc == TC4)
-                _tc_num = 4;
-            else if (tc == TC5)
-                _tc_num = 5;
-            else
-                _tc_num = -1;
-        }
+        static void show(int verbosity=0);
 
-        ~SamdTc()
+        static void sync()
         {
-            _tc = nullptr;
-        }
-
-        void show(int verbosity=0);
-
-        void sync()
-        {
-            while (_tc->COUNT8.STATUS.bit.SYNCBUSY != 0)
+            while (TC3->COUNT8.STATUS.bit.SYNCBUSY != 0)
                 ;
         }
 
-        void reset();
+        static void reset()
+        {
+            TC3->COUNT8.CTRLA.bit.SWRST = 1;
+            sync();
+            while (TC3->COUNT8.CTRLA.bit.SWRST != 0)
+                ;
+        }
 
-        void set_ctrla(uint16_t value)
+        static void set_ctrla(uint16_t value)
         {
             // COUNT8.CTRLA, COUNT16, and COUNT32 are all the same
-            _tc->COUNT8.CTRLA.reg = value;
+            TC3->COUNT8.CTRLA.reg = value;
             sync();
         }
 
-        uint32_t count32()
+        static uint32_t count32()
         {
-            return _tc->COUNT32.COUNT.reg;
+            return TC3->COUNT32.COUNT.reg;
         }
 
-    private:
-        
-        Tc *_tc;
+}; // class SamdTc3
 
-        int _tc_num;
 
-}; // class SamdTc
+class SamdTc4 {
+
+    public:
+
+        static void show(int verbosity=0);
+
+        static void sync()
+        {
+            while (TC4->COUNT8.STATUS.bit.SYNCBUSY != 0)
+                ;
+        }
+
+        static void reset()
+        {
+            TC4->COUNT8.CTRLA.bit.SWRST = 1;
+            sync();
+            while (TC4->COUNT8.CTRLA.bit.SWRST != 0)
+                ;
+        }
+
+        static void set_ctrla(uint16_t value)
+        {
+            // COUNT8.CTRLA, COUNT16, and COUNT32 are all the same
+            TC4->COUNT8.CTRLA.reg = value;
+            sync();
+        }
+
+        static uint32_t count32()
+        {
+            return TC4->COUNT32.COUNT.reg;
+        }
+
+}; // class SamdTc4
+
+
+class SamdTc5 {
+
+    public:
+
+        static void show(int verbosity=0);
+
+        static void sync()
+        {
+            while (TC5->COUNT8.STATUS.bit.SYNCBUSY != 0)
+                ;
+        }
+
+        static void reset()
+        {
+            TC5->COUNT8.CTRLA.bit.SWRST = 1;
+            sync();
+            while (TC5->COUNT8.CTRLA.bit.SWRST != 0)
+                ;
+        }
+
+        static void set_ctrla(uint16_t value)
+        {
+            // COUNT8.CTRLA, COUNT16, and COUNT32 are all the same
+            TC5->COUNT8.CTRLA.reg = value;
+            sync();
+        }
+
+        static uint32_t count32()
+        {
+            return TC5->COUNT32.COUNT.reg;
+        }
+
+}; // class SamdTc5

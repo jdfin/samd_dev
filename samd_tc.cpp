@@ -3,18 +3,15 @@
 #include "samd_tc.h"
 
 
-void SamdTc::show(int verbosity)
+static void samd_tc_show(Tc *tc, int verbosity)
 {
-    Serial.print("TC");
-    Serial.println(_tc_num);
-
-    if (_tc->COUNT32.STATUS.bit.SLAVE == 1) {
+    if (tc->COUNT32.STATUS.bit.SLAVE == 1) {
         // slave in 32-bit mode
         Serial.println("  32-bit slave");
         return;
     }
 
-    int mode = _tc->COUNT8.CTRLA.bit.MODE;
+    int mode = tc->COUNT8.CTRLA.bit.MODE;
 
     if (mode == TC_CTRLA_MODE_COUNT32_Val)
         Serial.println("  32-bit master");
@@ -23,7 +20,7 @@ void SamdTc::show(int verbosity)
 
     // CTRLA same in all modes
     TC_CTRLA_Type ctrla;
-    ctrla.reg = _tc->COUNT8.CTRLA.reg;
+    ctrla.reg = tc->COUNT8.CTRLA.reg;
     sprintf(buf, "  CTRLA    0x%04x: ", ctrla.reg);
     Serial.println(buf);
 
@@ -59,13 +56,25 @@ void SamdTc::show(int verbosity)
         return;
     }
 
-} // void SamdTc::show
+} // void samd_tc_show
 
 
-void SamdTc::reset()
+void SamdTc3::show(int verbosity)
 {
-    _tc->COUNT8.CTRLA.bit.SWRST = 1;
-    sync();
-    while (_tc->COUNT8.CTRLA.bit.SWRST != 0)
-        ;
+    Serial.print("TC3");
+    samd_tc_show(TC3, verbosity);
+}
+
+
+void SamdTc4::show(int verbosity)
+{
+    Serial.print("TC4");
+    samd_tc_show(TC4, verbosity);
+}
+
+
+void SamdTc5::show(int verbosity)
+{
+    Serial.print("TC5");
+    samd_tc_show(TC5, verbosity);
 }
